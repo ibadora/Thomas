@@ -1,1 +1,1 @@
-testtest
+printf("testtest\n");
