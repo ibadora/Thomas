@@ -9,7 +9,7 @@ def extract_noun(line)
   splited = line.split(/\t/)
   if splited[2] =~ /EN\d/ then
   
-    splited[1].gsub!("\"", "") # ２単語以上で構成される名詞には"がつくので削除．
+    splited[4].gsub!("\"", "") # ２単語以上で構成される名詞には"がつくので削除．
   
     # Put each Japanese term into array(splited_jjp)
     splited_jp = splited[8].split(/^0\||\/\/0\||\|x/)
@@ -17,15 +17,18 @@ def extract_noun(line)
     #日本語訳にカッコ "()" "<>" 付きの追加情報がついている場合に対応．"〜"も削除
     splited_jp.each {|element| 
       element.gsub!(/\"\(.+?\)|\"/, "")
+      element.gsub!(/\[(.+)\]"/, "")
       element.gsub!(/<<.+>>/, "")
       element.gsub!("〜", "")
     }
    
     # result
-    result << splited[1] #-> Term in English
-    result << "\t" + splited[2]
-    splited_jp.each {|element| result << "\t" + element} #-> Terms in Japanese
-    result << "\n"
+    if (splited[4] != "") && (splited[2] != "") then
+      result << splited[4] #-> Term in English
+      result << "\t" + splited[2]
+      splited_jp.each {|element| result << "\t" + element} #-> Terms in Japanese
+      result << "\n"
+    end
   end
   result
 end
@@ -40,4 +43,4 @@ open("./Resources/EDR/EJB.DIC.UTF8") {|file|
   end
 }
 
-File.write("nouns.txt", for_write)
+File.write("edr_nouns.txt", for_write)
