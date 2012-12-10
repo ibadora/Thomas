@@ -52,6 +52,78 @@ class TfIdf_Thomas
       file.write for_write
       file.close 
   end
+
+  def tf(word_counted)
+    #　type_counter(en_wiki)で作成したファイル(word_counted.txt)をハッシュに格納
+    @tf = Hash::new()
+    # 各記事に対してTfを求める．
+    open(word_counted, 'r') {|counted|
+      while line = counted.gets
+        line_splited = line.split("\t")
+        title = line_splited[0]
+        length = line_splited.length
+        #記事内の全タイプ数計算
+        i = 1
+        total = 0.0
+        line_splited[1..length].each {|e|
+          if (i % 2) == 0 then
+            total = total + e.to_f
+          end
+          i += 1
+        }
+        
+        # TF(Term-Frequency)を格納したハッシュを作成
+        i = 0
+        type = Hash::new()
+        line_splited[0..length].each {|e|
+          if i % 2 != 0 then #eが数字のとき
+            type[e] = line_splited[i+1].to_f / total
+          end
+          i += 1
+        }
+        @tf[title] = type
+      end
+    }
+    @tf
+  end
+  
+  def idf(word_counted)
+    if @tf == nil then
+      tf(word_counted)
+    end
+    # idf保存用ハッシュ作成
+    @idf = @tf
+    @tfidf = @tf
+    
+    # ハッシュidfを初期化
+    @idf.each_value {|value|
+      value.each_key {|key|
+        value[key] = 0.0
+      }
+    }
+    
+    # 登場するドキュメント数を計算
+    total = 0.0
+    total = @tf.length # 総記事数
+    @idf.each_value {|value|
+      value.each_key {|word|
+        @idf.each_value {|hash|
+          if hash.member?(word) then
+            value[word] = value[word] + 1 # DFをカウント
+          end
+        }
+      }
+    }
+    
+    # IDFを@idfに設定．
+    @idf.each_value {|value|
+      value.each_key {|word|
+        value[word] = total / value[word].to_f #DF->IDF変換
+        value[word] = Math.log2(value[word].to_f) # log2
+      }
+    }
+    @idf
+  end
   
 end 
 
