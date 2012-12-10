@@ -102,4 +102,4 @@ end
 
 # Test
 test = Processing.new("enarticle_selected.txt", "jparticle_selected_for_test.txt", "union.txt", "EDR_nouns.txt")
-test.weight_word("Ayesha Takia", 1, "actress")
+test.weight_word("Ayesha Takia", 1, "rubbish")
